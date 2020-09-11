@@ -7,11 +7,12 @@ import IEC62559
 ##import xmlschema ##is_valid+validate
 import xml.dom.minidom
 from openpyxl import load_workbook
+import sys
 
 #lista ig:  1-3,7,13,17,20,25,28,37,39,40,47,55,56,57,65,75,80-86,87,90,91-93
 #multi_ele_ini: 8-12,21-24,26-27,38,41-46,48-54,58-64,66-74,76-79
 #optionals: 81-86(multi?),91-92(multi?)
-def main():
+def main(filename):
   list_ign = [1,2,3,7,13,17,20,25,28,37,42,43,50,59,60,61,69,80,85,92,95]
   list_opt = [86,87,88,89,90,91,93,94,96,97,98]
   list_multi = [[8,9,10,11,12],[21,22,23,24],[26],[27],[36],[38,39,40,41],[44,45],[46,47,48,49],[51,52,53,54,55,56,57,58],[62,63,64,65,66,67,68],[70,71,72,73,74,75,76,77,78,79],[81,82,83,84]]
@@ -51,10 +52,7 @@ def main():
   #commonterm    = IEC62559.CommonTerm()
   #custominfo    = IEC62559.CustomInformation()
 
-  wb = load_workbook(filename = 'UC2.4 RES scheduling control.xlsx')
-  #wb = load_workbook(filename = 'UC2.1 Network real-time monitoring.xlsx')
-  #wb = load_workbook(filename = 'IEC62559-2_rev2.xlsx')
-  #wb = load_workbook(filename = 'IEC62559-2_test.xlsx')
+  wb = load_workbook(filename)
   sheet_list = wb.sheetnames
 
   IniCol = 3
@@ -301,4 +299,9 @@ def main():
   print(xml.dom.minidom.parseString(usecaserep.toxml("utf-8", element_name='UseCaseRepository').decode('utf-8')).toprettyxml())
 
 #Python3
-main()
+if len(sys.argv) < 2:
+    print("I require one parameter, which should be the name of the file to process.")
+    sys.exit(1)
+filename = sys.argv[1]
+print("Processing ", filename)
+main(filename)
