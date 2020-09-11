@@ -51,9 +51,9 @@ def main():
   #commonterm    = IEC62559.CommonTerm()
   #custominfo    = IEC62559.CustomInformation()
 
-  #wb = load_workbook(filename = 'UC2.4 RES scheduling control.xlsx')
+  wb = load_workbook(filename = 'UC2.4 RES scheduling control.xlsx')
   #wb = load_workbook(filename = 'UC2.1 Network real-time monitoring.xlsx')
-  wb = load_workbook(filename = 'IEC62559-2_rev2.xlsx')
+  #wb = load_workbook(filename = 'IEC62559-2_rev2.xlsx')
   #wb = load_workbook(filename = 'IEC62559-2_test.xlsx')
   sheet_list = wb.sheetnames
 

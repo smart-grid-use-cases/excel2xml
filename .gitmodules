@@ -1,0 +1,3 @@
+[submodule "excel2xml-input"]
+	path = excel2xml-input
+	url = ../excel2xml-input
