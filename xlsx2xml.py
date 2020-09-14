@@ -1,26 +1,18 @@
 #! /usr/bin/python3
 
 import datetime
-#import time
 import pyxb
 import IEC62559
-##import xmlschema ##is_valid+validate
+import sys
 import xml.dom.minidom
 from openpyxl import load_workbook
-import sys
 
-#lista ig:  1-3,7,13,17,20,25,28,37,39,40,47,55,56,57,65,75,80-86,87,90,91-93
-#multi_ele_ini: 8-12,21-24,26-27,38,41-46,48-54,58-64,66-74,76-79
-#optionals: 81-86(multi?),91-92(multi?)
-def main(filename):
+def main():
   list_ign = [1,2,3,7,13,17,20,25,28,37,42,43,50,59,60,61,69,80,85,92,95]
   list_opt = [86,87,88,89,90,91,93,94,96,97,98]
   list_multi = [[8,9,10,11,12],[21,22,23,24],[26],[27],[36],[38,39,40,41],[44,45],[46,47,48,49],[51,52,53,54,55,56,57,58],[62,63,64,65,66,67,68],[70,71,72,73,74,75,76,77,78,79],[81,82,83,84]]
-  list_ign += list_opt ##borrar+adelante
+  list_ign += list_opt
 
-  #my_xsd = xmlschema.XMLSchema('IEC62559-3_pretty.xsd')
-  #my_xsd.is_valid('output.xml')
-  #my_xsd.validate('output.xml')
   usecaserep    = IEC62559.UseCaseRepository()
   usecaselib    = IEC62559.UseCaseLibrary()
   usecase       = IEC62559.UseCase()
@@ -52,7 +44,18 @@ def main(filename):
   #commonterm    = IEC62559.CommonTerm()
   #custominfo    = IEC62559.CustomInformation()
 
-  wb = load_workbook(filename)
+  if len(sys.argv) > 1:
+    filename = str(sys.argv[1])
+  else:
+    print("No arguments introduced")
+    #filename = 'IEC62559-2_rev2.xlsx' #for testing
+
+  try:
+    wb = load_workbook(filename)
+  except:
+    print("File does not exist!")
+    pass
+
   sheet_list = wb.sheetnames
 
   IniCol = 3
@@ -80,7 +83,6 @@ def main(filename):
                   version.number = cell
                 if (ind+k == 9):
                   tdate = cell
-                  #print (cell)
                   tdate = tdate[:-9]
                   version.date = datetime.datetime.strptime(tdate, "%Y-%m-%d")
                 if (ind+k == 10):
@@ -127,7 +129,6 @@ def main(filename):
                 if (ind+k == 39):
                   drawing.drawingType = cell
                 if (ind+k == 40):
-                  ##drawing.URI.type = cell
                   resourcestr.type = cell
                 if (ind+k == 41):
                   drawing.URI = resourcestr
@@ -168,7 +169,6 @@ def main(filename):
                   reference.originatorOrganization = cell
                 if (ind+k == 58):
                   reference.link = cell
-                  #reference.name = "reference_name"
                   usecase.Reference.append (reference)
                   reference = IEC62559.Reference()
 
@@ -217,8 +217,6 @@ def main(filename):
 
                 if (ind+k == 81):
                   requirement.mRID = cell
-                #  reqlib = IEC62559.RequirementLibrary()
-                #  reqcat = IEC62559.RequirementCategory()
                 if (ind+k == 82):
                   requirement.identifier = cell
                 if (ind+k == 83):
@@ -245,10 +243,16 @@ def main(filename):
           if (ind == 14):
             usecase.scope = cell
           if (ind == 15):
-            relobj.name = cell
+            if cell == None:
+              relobj.name = "None"
+            else:
+              relobj.name = cell
             usecase.RelatedObjective.append(relobj)
           if (ind == 16):
-            bcase.mRID = cell
+            if cell == None:
+              bcase.mRID = "None"
+            else:
+              bcase.mRID = cell
             usecase.BusinessCase.append(bcase)
           if (ind == 18):
             narrative.shortDescription = cell
@@ -257,7 +261,10 @@ def main(filename):
             usecase.Narrative = narrative
             narrative = IEC62559.Narrative()
           if (ind == 29):
-            refusecase.mRID = cell
+            if cell == None:
+              refusecase.mRID = "None"
+            else:
+              refusecase.mRID = cell
             usecase.RelatedUseCase.append(refusecase)
             refusecase = IEC62559.Ref_UseCase()
           if (ind == 30):
@@ -281,8 +288,8 @@ def main(filename):
   usecaserep.UseCaseLibrary = usecaselib
   usecaserep.name = "UCR_name"
   usecaserep.ActorLibrary.append(actorlib)
-  reqcat.name = "namen" #sustituir por cell
-  reqcat.identifier = "idi"  #sustituir por cell
+  reqcat.name = "Req_Name" #sustituir por cell
+  reqcat.identifier = "Req_ID"  #sustituir por cell
   reqlib.append(reqcat)
   usecaserep.RequirementLibrary = reqlib
 
@@ -299,9 +306,4 @@ def main(filename):
   print(xml.dom.minidom.parseString(usecaserep.toxml("utf-8", element_name='UseCaseRepository').decode('utf-8')).toprettyxml())
 
 #Python3
-if len(sys.argv) < 2:
-    print("I require one parameter, which should be the name of the file to process.")
-    sys.exit(1)
-filename = sys.argv[1]
-print("Processing ", filename)
-main(filename)
+main()
