@@ -20,7 +20,9 @@ jobs:
     - name: Create Archive
       id: create-archive
       run: |
-        zip -r Bridge Bridge
+        pushd grupoetra
+        zip -r ../grupoetra */*.xml
+        popd
     - name: Create Release
       id: create-release
       uses: actions/create-release@v1
@@ -38,12 +40,12 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ./Bridge.zip
-        asset_name: Bridge.zip
+        asset_path: ./grupoetra.zip
+        asset_name: grupoetra.zip
         asset_content_type: application/zip
-#    - uses: juztcode/repo-ditpatch-action@v1
-#      with:
-#        event-type: release_event
-#        token: ${{ secrets.REPO_TRIGGER_KEY }}
-#        repository: smart-grid-use-cases/github-pages
-#        client-payload: '{"tag": "${{ github.event.client_payload.tag }}" }'
+    - uses: juztcode/repo-ditpatch-action@v1
+      with:
+        event-type: release_event
+        token: ${{ secrets.REPO_TRIGGER_KEY }}
+        repository: "${{ github.repository_owner }}/xml2md"
+        client-payload: '{"tag": "${{ github.event.client_payload.tag }}" }'
