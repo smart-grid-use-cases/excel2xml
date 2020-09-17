@@ -1,0 +1,55 @@
+name: test workflow
+
+on:
+  repository_dispatch:
+    events:
+      [ release_event ]
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    name: Create artifacts
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Get Excel2xml-input
+      run: |
+          GET_LATEST_OUTPUT=$(./get_latest.sh ${{ github.repository_owner }} excel2xml-input grupoetra.zip excel2xml-input)
+          RELEASE_VERSION=$(echo $GET_LATEST_OUTPUT | sed 's/Release version: release-//')
+          echo "RELEASE_VERSION: ${RELEASE_VERSION}"
+          echo ::set-output name=excel2xml-input-version::${RELEASE_VERSION}
+    - name: Create MD
+      id:   build-it-now
+      uses: ./
+    - name: Create Archive
+      id: create-archive
+      run: |
+        pushd grupoetra
+        zip -r ../grupoetra */*.xml
+        popd
+    - name: Create Release
+      id: create-release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.event.client_payload.tag }}
+        release_name: Release ${{ github.event.client_payload.tag }}
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create-release.outputs.upload_url }}
+        asset_path: ./grupoetra.zip
+        asset_name: grupoetra.zip
+        asset_content_type: application/zip
+    - uses: juztcode/repo-ditpatch-action@v1
+      with:
+        event-type: release_event
+        token: ${{ secrets.REPO_TRIGGER_KEY }}
+        repository: "${{ github.repository_owner }}/xml2md"
+        client-payload: '{"tag": "${{ github.event.client_payload.tag }}" }'
