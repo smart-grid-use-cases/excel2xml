@@ -12,8 +12,12 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Checkout submodules
-      uses: textbook/git-checkout-submodule-action@master
+    - name: Get Excel2xml-input
+      run: |
+          GET_LATEST_OUTPUT=$(./get_latest.sh ${{ github.repository_owner }} excel2xml-input grupoetra.zip excel2xml-input)
+          RELEASE_VERSION=$(echo $GET_LATEST_OUTPUT | sed 's/Release version: release-//')
+          echo "RELEASE_VERSION: ${RELEASE_VERSION}"
+          echo ::set-output name=excel2xml-input-version::${RELEASE_VERSION}
     - name: Create MD
       id:   build-it-now
       uses: ./
