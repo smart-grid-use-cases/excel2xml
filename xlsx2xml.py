@@ -124,10 +124,15 @@ def extract_drawing(sheet_ranges):
   drawing               = IEC62559.Drawing()
   resourcestr           = IEC62559.Resource_String()
   try:
-    drawing.name        = cell_str(sheet_ranges, 38, 3)
-    drawing.drawingType = cell_str(sheet_ranges, 39, 3)
-    resourcestr.type    = cell_str(sheet_ranges, 40, 3)
-    drawing.URI         = resourcestr
+    name        = cell_str(sheet_ranges, 38, 3)
+    drawingType = cell_str(sheet_ranges, 39, 3)
+    if name != 'None' and drawingType != 'None':
+      drawing.name        = cell_str(sheet_ranges, 38, 3)
+      drawing.drawingType = cell_str(sheet_ranges, 39, 3)
+      resourcestr.type    = cell_str(sheet_ranges, 40, 3)
+      drawing.URI         = resourcestr
+    else:
+      return None
 
   except Exception as e:
     print("Exception caught: " + str(e), file=sys.stderr)

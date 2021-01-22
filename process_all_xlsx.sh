@@ -9,13 +9,18 @@ fi
 
 mkdir -p ${OUTPUT_DIR}
 
-find /excel2xml -type f -name '*.xlsx' -exec sh -c '
-  file="$0"
+INPUT_DIR="/excel2xml/excel2xml-input/excel-use-cases"
+
+find $INPUT_DIR -type f -name '*.xlsx' -exec sh -c '
+  FILE="$0"
   OUTPUT_DIR="$1"
-  file_no_ext="${file%.xlsx}"
-  DIRNAME=$(basename "${file_no_ext}" | tr '[:blank:]' '_')
+  INPUT_DIR="$2"
+  BASENAME=$(basename "$FILE" .xlsx | tr '[:blank:]' '_')
+  NO_PREFIX="${FILE##$INPUT_DIR}"
+  BASEPATH=$(dirname "$NO_PREFIX")
+  DIRNAME=$(echo "${BASEPATH}" | tr '[:blank:]' '_')
   mkdir -p ${OUTPUT_DIR}/${DIRNAME}
-  output_file_name="${OUTPUT_DIR}/${DIRNAME}/${DIRNAME}.xml"
-  echo "$output_file_name"
-  python3 /excel2xml/xlsx2xml.py "$file" > "$output_file_name"
-' {} ${OUTPUT_DIR} ';'
+  OUTPUT_FILE_NAME="${OUTPUT_DIR}${DIRNAME}/${BASENAME}.xml"
+  echo "$OUTPUT_FILE_NAME"
+  python3 /excel2xml/xlsx2xml.py "$FILE" > "$OUTPUT_FILE_NAME"
+' {} ${OUTPUT_DIR} ${INPUT_DIR} ';'
