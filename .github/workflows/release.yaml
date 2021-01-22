@@ -20,10 +20,7 @@ jobs:
       uses: ./
     - name: Create Archive
       id: create-archive
-      run: |
-        pushd grupoetra
-        zip -r ../grupoetra */*.xml
-        popd
+      run: pushd grupoetra && zip ../grupoetra -r . && popd
     - name: Create Release
       id: create-release
       uses: actions/create-release@v1
