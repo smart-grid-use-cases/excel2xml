@@ -120,25 +120,64 @@ def extract_remark(sheet_ranges):
     print("Exception caught: " + str(e), file=sys.stderr)
   return remark
 
-def extract_drawing(sheet_ranges):
-  drawing               = IEC62559.Drawing()
-  resourcestr           = IEC62559.Resource_String()
-  try:
-    name        = cell_str(sheet_ranges, 38, 3)
-    drawingType = cell_str(sheet_ranges, 39, 3)
-    if name != 'None' and drawingType != 'None':
-      drawing.name        = cell_str(sheet_ranges, 38, 3)
-      drawing.drawingType = cell_str(sheet_ranges, 39, 3)
-      resourcestr.type    = cell_str(sheet_ranges, 40, 3)
-      drawing.URI         = resourcestr
-    else:
-      return None
 
-  except Exception as e:
-    print("Exception caught: " + str(e), file=sys.stderr)
-    drawing             = None
 
-  return drawing
+
+def extract_drawings(sheet_ranges):
+
+  def switch_drawingType(argument):
+    switcher = {
+        "other": IEC62559.DrawingClassification.other,
+        "domain_overview": IEC62559.DrawingClassification.domain_overview,
+        "use_case_overview": IEC62559.DrawingClassification.use_case_overview,
+        "documentation": IEC62559.DrawingClassification.documentation,
+        "scenarios_flowchart": IEC62559.DrawingClassification.scenarios_flowchart,
+        "scenario_overview": IEC62559.DrawingClassification.scenario_overview,
+        "activities_flowchart": IEC62559.DrawingClassification.activities_flowchart,
+        "activity_overview": IEC62559.DrawingClassification.activity_overview,
+        "business_objects_overview": IEC62559.DrawingClassification.business_objects_overview,
+        "role_model": IEC62559.DrawingClassification.role_model,
+        "None": IEC62559.DrawingClassification.other,
+    }
+    return switcher.get(argument,IEC62559.DrawingClassification.other)
+
+  def switch_uriType(argument):
+      switcher = {
+          "UMLDiagram": IEC62559.ResourceType.UMLDiagram,
+          "image": IEC62559.ResourceType.image,
+          "None": IEC62559.ResourceType.image,
+      }
+      return switcher.get(argument,IEC62559.ResourceType.image)
+
+  drawings=[]
+  index=0
+ 
+  while index>=0:
+    try:
+      name        = cell_str(sheet_ranges, 38, 3+index)
+      drawingType = cell_str(sheet_ranges, 39, 3+index)
+      uriType     = cell_str(sheet_ranges, 40, 3+index)
+      uri = cell_str(sheet_ranges, 41, 3+index)
+      if name != 'None' and uri!='None' :
+        drawing             = IEC62559.Drawing()
+        resourcestr         = IEC62559.Resource_String(uri)
+        drawing.name        = name #cell_str(sheet_ranges, 38, 3)
+       
+        drawing.drawingType = switch_drawingType(drawingType)  #cell_str(sheet_ranges, 39, 3)
+        resourcestr.type    = switch_uriType(uriType) #IEC62559.ResourceType.UMLDiagram #cell_str(sheet_ranges, 40, 3)
+        drawing.URI         = resourcestr
+        drawings.append(drawing)
+        index=index+1
+      else:
+        #return None
+        index=-1
+
+    except Exception as e:
+      print("Exception caught: " + str(e), file=sys.stderr)
+      drawing             = None
+      index=-1
+
+  return drawings
 
 def extract_actorgroupings(sheet_ranges):
   actorgroupings                = []
@@ -290,7 +329,9 @@ def extract_usecase(sheet_ranges):
   usecase.nature                = cell(sheet_ranges, 33, column)
   usecase.keywords              = cell(sheet_ranges, 34, column)
   usecase.Version.append(extract_version(sheet_ranges))
-  if extract_drawing(sheet_ranges) != None:
+  #drawing = extract_drawings(sheet_ranges)
+  #if drawing != None:
+  for drawing in extract_drawings(sheet_ranges):
     usecase.Drawing.append(drawing)
   for kpi in extract_kpis(sheet_ranges):
     usecase.KeyPerformanceIndicator.append(kpi)
