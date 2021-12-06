@@ -160,7 +160,7 @@ def extract_drawings(sheet_ranges):
       name        = cell_str(sheet_ranges, 38, 3+index)
       drawingType = cell_str(sheet_ranges, 39, 3+index)
       uriType     = cell_str(sheet_ranges, 40, 3+index)
-      uri = cell_str(sheet_ranges, 41, 3+index)
+      uri = cell_str(sheet_ranges, 41, 3+index).strip().replace(' ', '_')
       if name != 'None' and uri!='None' :
         drawing             = IEC62559.Drawing()
         resourcestr         = IEC62559.Resource_String(uri)
@@ -332,8 +332,6 @@ def extract_usecase(sheet_ranges):
   usecase.nature                = cell(sheet_ranges, 33, column)
   usecase.keywords              = cell(sheet_ranges, 34, column)
   usecase.Version.append(extract_version(sheet_ranges))
-  #drawing = extract_drawings(sheet_ranges)
-  #if drawing != None:
   for drawing in extract_drawings(sheet_ranges):
     usecase.Drawing.append(drawing)
   for kpi in extract_kpis(sheet_ranges):
@@ -359,12 +357,12 @@ def main():
   if len(sys.argv) > 1:
     filename = str(sys.argv[1])
   else:
-    print("No arguments introduced")
+    print("No arguments introduced", file=sys.stderr)
 
   try:
     wb = load_workbook(filename)
   except:
-    print("File does not exist!")
+    print("File does not exist!", file=sys.stderr)
     pass
 
   sheet_list = wb.sheetnames
