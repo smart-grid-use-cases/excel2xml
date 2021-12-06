@@ -24,8 +24,11 @@ def extract_version(sheet_ranges):
   try:
     version.number         = cell_str(sheet_ranges, 8, 3)
     tdate                  = str(sheet_ranges.cell(row = 9, column = 3).value)
-    tdate                  = tdate[:-9]
-    version.date           = datetime.datetime.strptime(tdate, "%Y-%m-%d")
+    if len(tdate) == 19:
+        tdate                  = tdate[:-9]
+        version.date           = datetime.datetime.strptime(tdate, "%Y-%m-%d")
+    else:
+        version.date           = datetime.datetime.strptime(tdate, "%d.%m.%Y")
     author.name            = str(sheet_ranges.cell(row = 10, column = 3).value)
     version.changes        = str(sheet_ranges.cell(row = 11, column = 3).value)
     version.approvalStatus = str(sheet_ranges.cell(row = 12, column = 3).value)
@@ -316,7 +319,7 @@ def extract_requirements(sheet_ranges):
 def extract_usecase(sheet_ranges):
   column = 3
   usecase                       = IEC62559.UseCase()
-  usecase.identifier            = cell(sheet_ranges, 4, column)
+  usecase.identifier            = str(cell(sheet_ranges, 4, column))
   usecase.name                  = cell(sheet_ranges, 6, column)
   usecase.scope                 = cell(sheet_ranges, 14, column)
   usecase.RelatedObjective.append(extract_relobj(sheet_ranges))

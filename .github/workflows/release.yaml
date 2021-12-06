@@ -4,6 +4,11 @@ on:
   repository_dispatch:
     events:
       [ release_event ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Excel2XML input release tag'
+        required: true
 
 jobs:
   package:
@@ -14,7 +19,7 @@ jobs:
       uses: actions/checkout@v2
     - name: Get Excel2xml-input
       run: |
-          ./get_latest.sh ${{ github.repository_owner }} excel2xml-input grupoetra.zip excel2xml-input ${{ github.event.client_payload.tag }}
+          ./get_latest.sh ${{ github.repository_owner }} excel2xml-input grupoetra.zip excel2xml-input ${{ github.event.client_payload.tag }} ${{ github.event.inputs.tag }}
     - name: Create MD
       id:   build-it-now
       uses: ./
@@ -27,7 +32,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.event.client_payload.tag }}
+        tag_name: ${{ github.event.client_payload.tag }} ${{ github.event.inputs.tag }}
         release_name: Release ${{ github.event.client_payload.tag }}
         draft: false
         prerelease: false
