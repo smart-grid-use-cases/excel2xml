@@ -160,7 +160,11 @@ def extract_drawings(sheet_ranges):
       name        = cell_str(sheet_ranges, 38, 3+index)
       drawingType = cell_str(sheet_ranges, 39, 3+index)
       uriType     = cell_str(sheet_ranges, 40, 3+index)
-      uri = cell_str(sheet_ranges, 41, 3+index).strip().replace(' ', '_')
+      uri         = cell_str(sheet_ranges, 41, 3+index).strip().replace(' ', '_')
+
+      if uri.endswith('.pdf'):
+        uri = uri + '.png'
+
       if name != 'None' and uri!='None' :
         drawing             = IEC62559.Drawing()
         resourcestr         = IEC62559.Resource_String(uri)
