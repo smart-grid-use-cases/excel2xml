@@ -28,7 +28,7 @@ def extract_version(sheet_ranges):
     author = IEC62559.Author()
     try:
         version.number = cell_str(sheet_ranges, 8, 3)
-        tdate = str(sheet_ranges.cell(row=9, column=3).value)
+        tdate = str(sheet_ranges.cell(row=9, column=3).value).strip()
         if len(tdate) == 19:
             tdate = tdate[:-9]
             version.date = datetime.datetime.strptime(tdate, "%Y-%m-%d")
